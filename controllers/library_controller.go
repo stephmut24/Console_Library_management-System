@@ -22,7 +22,31 @@ func NewLibraryController(library services.LibraryManager) *LibraryController {
 	}
 }
 
-//run the console interface
+// run the console interface
+func (lc *LibraryController) reserveBook() {
+	fmt.Println("\n---- Reserve a book ----")
+	bookIDStr := lc.getInput("Book ID: ")
+	memberIDStr := lc.getInput("Member ID: ")
+
+	bookID, err := strconv.Atoi(bookIDStr)
+	if err != nil {
+		fmt.Println("Error: Invalid Book ID")
+		return
+	}
+
+	memberID, err := strconv.Atoi(memberIDStr)
+	if err != nil {
+		fmt.Println("Error: Invalid Member ID")
+		return
+	}
+
+	err = lc.library.ReserveBook(bookID, memberID)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	fmt.Println("Book reserved successfully!")
+}
 
 func (lc *LibraryController) Run() {
 	for {
@@ -48,6 +72,8 @@ func (lc *LibraryController) Run() {
 			lc.listAllBooks()
 		case "9":
 			lc.listAllMember()
+		case "10":
+			lc.reserveBook()
 		case "0":
 			fmt.Println("Good bay!")
 			return
@@ -71,6 +97,7 @@ func (lc *LibraryController) showMenu() {
 	fmt.Println("7. List books borrowed by a member")
 	fmt.Println("8. List all books")
 	fmt.Println("9. List all members")
+	fmt.Println("10. Reserve a book")
 	fmt.Println("0. Exit")
 
 }
@@ -148,7 +175,6 @@ func (lc *LibraryController) borrowBook() {
 		fmt.Println("Error: Invalid Member ID")
 		return
 	}
-
 	err = lc.library.BorrowBook(bookID, memberID)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)

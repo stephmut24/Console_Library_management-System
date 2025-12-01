@@ -97,6 +97,25 @@ Member not found
 Book already borrowed
 
 Attempt to remove a borrowed book
+## Concurrency / Reservation System
+
+This project has been extended to support concurrent reservations using Go concurrency primitives:
+
+- Goroutines: The reservation processing runs in worker goroutines so multiple requests are handled concurrently.
+- Channels: Reservation requests are enqueued through a channel into the reservation center (see `concurrency/reservation_worker.go`).
+- Mutexes: A sync.Mutex in `services/library_service.go` protects the shared in-memory maps and book records to avoid race conditions.
+
+Behavior details:
+- ReserveBook(bookID, memberID) enqueues a reservation request and is processed by the worker pool.
+- If the book is available, it will be marked as reserved and a timer-based goroutine will cancel the reservation automatically if the book is not borrowed within 5 seconds.
+- The system simulates asynchronous borrowing in the reservation handler so you can observe both successful automatic borrows and timeout-based cancellations.
+
+Files added/changed:
+- concurrency/reservation_worker.go — worker pool and request queue implementation.
+- services/library_service.go — reserve handling, mutex protection, and auto-cancel logic.
+- models/book.go — added reservation metadata to Book (ReservedBy, ReservedUntil).
+- main.go — small simulation demonstrating concurrent reservation attempts.
+
 
 Invalid input formats
 
